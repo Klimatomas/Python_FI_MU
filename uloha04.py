@@ -5,26 +5,34 @@ def strategy(state):
 	pass
 
 
-def is_valid(move):
-	pass
+def is_valid(move, field):
+	for i in range(len(field)):
+		if move <= len(field) and field[move] != "X":
+			return True
+		else:
+			print "Not a valid move!"
+			return False
+
+
+def victory_condition(field):
+	for i in range(len(field)):
+		if field[i] == "X" == field[i + 1] == field[i + 2]:
+			return True
+		# WTF???!!!
 
 
 def tictactoe(size, human_starts=True):
 	field = size * ['_']
-	print field
-	while True:
+	x = victory_condition(field)
+	while not x:
 		if human_starts:
 			move = input("Insert your move: ")
-			is_valid(move)
-			for i in range(len(field)):
-				if move == i + 1:
-					print field[i]
-					if field[i] == "X":
-						print "invalid move"
-					else:
-						field[i] = "X"
+			is_valid(move - 1, field)
+			if is_valid:
+				field[move - 1] = "X"
 
-		print field
+		print " ".join(field)
+		x = victory_condition(field)
 
 
-tictactoe(9)
+tictactoe(10)
