@@ -2,7 +2,10 @@ __author__ = 'Tomas'
 
 
 def strategy(state):
-	pass
+	print "som tu"
+	for i in range(len(state)):
+		if state[i] == "X" == state[i + 1]:
+			pass
 
 
 def is_valid(move, field):
@@ -23,16 +26,26 @@ def victory_condition(field):
 
 def tictactoe(size, human_starts=True):
 	field = size * ['_']
-	x = victory_condition(field)
+	x = False
+	# podminka pro zacinani pocitacem/hracem ... je to trochu dementni
+	if human_starts:
+		turn = 0
+	else:
+		turn = 1
 	while not x:
-		if human_starts:
+		if turn % 2 == 0:
+			turn += 1
 			move = input("Insert your move: ")
-			is_valid(move - 1, field)
-			if is_valid:
+			valid = is_valid(move - 1, field)
+			while not valid:
 				field[move - 1] = "X"
+		else:
+			turn += 1
+			strategy(field)
 
 		print " ".join(field)
+		print ""
 		x = victory_condition(field)
 
 
-tictactoe(10)
+tictactoe(10, False)
