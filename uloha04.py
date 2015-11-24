@@ -4,41 +4,59 @@ __author__ = 'Tomas'
 
 
 def strategy(state):
-	# len(state)-2 je kvuli tomu aby pri kontrole nebyl index out of range
-	for i in range(len(state) - 2):
-		move = randint(1,len(state)-1)
+	for i in range(len(state)):
+		valid = False
 		if state[i] == "X":
+			#  kdyz hrac zahral na posledni nebo predposledni pole v prvnim tahu
+			#  zahraje pocitac na nahodne pole ktere je mimo dosah.
+			if i >= len(state) - 2:
+				while not valid:
+					move = randint(0, i - 3)
+					valid = is_valid(move, state)
+					break
+			else:
+				# kontrola stavu [ X X _ ], jestlize pocitac vidi tento stav, ukonci hru vyhrou.
+				if state[i + 1] == "X":
+					move = i + 2
+					break
 
-			# kontrola stavu [ X X _ ]
-			if state[i + 1] == "X":
-				move = i + 2
-				break
+				# kontrola stavu [ X _ X ] jestlize pocitac vidi tento stav, ukonci hru vyhrou.
+				elif state[i + 2] == "X":
+					move = i + 1
+					break
 
-			# kontrola stavu [ X _ X ]
-			elif state[i + 2] == "X":
-				move = i + 1
-				break
+				# kontrola jestli na konci pole je [ _ X X ], jestlize ano, ukonci hru vyhrou.
+				elif state[-1] == "X" and state[-2] == "X":
+					move = len(state) - 3
+					break
+				# kontroluje jesli svym tahem nenahrava hraci.
+				elif i + 3 <= len(state) - 1 and state[i + 3] != "X":
+					if i + 5 <= len(state) - 1 and (state[i + 4] == "X" or state[i + 5] == "X"):
+						pass
+					else:
+						move = i + 3
+						break
+				# jestlize vyse uvedene podminky nejsou splneny, ale prvni tri pole jsou volna, umisti X na prvni pole.
+				elif state[0] == state[1] == state[2]:
+					move = 0
+					break
+		else:
+			while not valid:
+				# jestlize nenasel zadnou z vyse uvedenych podminek, je jedno jak zahraje
+				# zahraje tedy nahodny validni tah.
+				move = randint(0, len(state) - 1)
+				valid = is_valid(move, state)
 
-			# kontrola jestli na konci pole je [ _ X X ]
-			elif state[len(state) - 1] == "X" and state[len(state) - 2] == "X":
-				move = len(state) - 3
-				break
-
-			# else:
-			# 	if i+3 <= len(state) and state[i+3] != "X":
-			# 		move = i + 3
-			# 		break
-			# 	else:
-			# 		pass
 	return move
 
 
-def is_valid(move, state):
+def is_valid(move, state, player=False):
 	for i in range(len(state)):
-		if move <= len(state)-1 and state[move] != "X":
+		if move <= len(state) - 1 and state[move] != "X":
 			return True
 		else:
-			print "Not a valid move!"
+			if player:
+				print "Neplatny pohyb!"
 			return False
 
 
@@ -48,44 +66,52 @@ def victory_condition(state):
 			return True
 
 
+def print_state(state):
+	print " ".join(state)
+	for i in range(len(state)):
+		if i >= 10:
+			i %= 10
+		print i,
+	print ""
+	for i in range(len(state)):
+		if i % 10 == 0:
+			print i / 10,
+		else:
+			print " ",
+
+
 def tictactoe(size, human_starts=True):
-	if size < 3:
+	if size <= 3:
 		print "size too small!"
 		return None
 	state = size * ['_']
-	x = False
+	end = False
 	if human_starts:
 		turn = 0
 	else:
 		turn = 1
-	while not x:
+	while not end:
+		print_state(state)
 		valid = False
 		if turn % 2 == 0:
-			print "\nPlayer's turn"
+			print "\nNa tahu: hrac"
 			turn += 1
 			while not valid:
-				move = input("Insert your move: ")
-				valid = is_valid(move, state)
+				move = input("Zadej tah: ")
+				valid = is_valid(move, state, True)
 		else:
-			print "\nPC's turn"
+			print "\nNa tahu: pocitac"
 			turn += 1
 			move = strategy(state)
-			print "PC put X on position ", move
+			print "Zahral na pozici: ", move
 		state[move] = "X"
+		end = victory_condition(state)
 
-		print " ".join(state)
-		for i in range(len(state)):
-			if i >= 10:
-				i %= 10
-			print i,
-		print ""
-
-		for i in range(len(state)):
-			if i % 10 == 0:
-				print i / 10,
-			else:
-				print " ",
-		x = victory_condition(state)
+	print_state(state)
+	if turn % 2 == 0:
+		print "\nProhral jsi!"
+	else:
+		print "\nVyhral jsi!"
 
 
-tictactoe(26)
+tictactoe(10)
